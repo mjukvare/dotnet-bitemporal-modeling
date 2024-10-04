@@ -1,5 +1,3 @@
-using Xunit.Sdk;
-
 namespace Mjukvare.BitemporalModeling.Domain.Tests;
 
 public class Experiments
@@ -18,7 +16,24 @@ public class Experiments
 
         var sut = new BitemporalManager(TimeProvider.System);
 
-        BitemporalResult<User, Guid> result = sut.Update<User, Guid>(user, now.AddDays(10), u => { u.Name = "James"; });
+        BitemporalUpdateResult<User, Guid> updateResult = sut.Update<User, Guid>(user, now.AddDays(10), u => { u.Name = "James"; });
+    }
+
+    [Fact]
+    public void AttemptDelete()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+
+        var user = new User
+        {
+            Name = "Nick",
+            BusinessKey = Guid.NewGuid(),
+            BitemporalTime = BitemporalTime.Latest(now, now)
+        };
+
+        var sut = new BitemporalManager(TimeProvider.System);
+
+        BitemporalDeleteResult<User, Guid> result = sut.Delete<User, Guid>(user, now.AddDays(10));
     }
 }
 
@@ -83,7 +98,7 @@ public sealed record BitemporalTime(
 
 public sealed class BitemporalManager(TimeProvider timeProvider) : IBitemporalManager
 {
-    public BitemporalResult<T, TBusinessKey> Update<T, TBusinessKey>(T entity, DateTimeOffset applicableFrom,
+    public BitemporalUpdateResult<T, TBusinessKey> Update<T, TBusinessKey>(T entity, DateTimeOffset applicableFrom,
         Action<T> updateAction)
         where T : ITemporalEntity<TBusinessKey>
         where TBusinessKey : IEquatable<TBusinessKey>
@@ -113,29 +128,41 @@ public sealed class BitemporalManager(TimeProvider timeProvider) : IBitemporalMa
         updateAction(entity);
         entity.BitemporalTime = BitemporalTime.Latest(applicableFrom, now);
 
-        return new BitemporalResult<T, TBusinessKey>(original, entity, expired);
+        return new BitemporalUpdateResult<T, TBusinessKey>(original, expired, entity);
     }
 
-    public BitemporalResult<T, TBusinessKey> Delete<T, TBusinessKey>(T entity, DateTimeOffset applicableTo)
+    public BitemporalDeleteResult<T, TBusinessKey> Delete<T, TBusinessKey>(T entity, DateTimeOffset applicableTo)
         where T : ITemporalEntity<TBusinessKey>
         where TBusinessKey : IEquatable<TBusinessKey>
     {
-        throw new NotEmptyException();
+        DateTimeOffset now = timeProvider.GetUtcNow();
+        
+        var original = (T)entity.Clone();
+        BitemporalTime originalTime = entity.BitemporalTime;
+        original.BitemporalTime = originalTime.Close(now);
+        
+        entity.BitemporalTime =  originalTime.Ends(applicableTo);
+
+        return new BitemporalDeleteResult<T, TBusinessKey>(original, entity);
     }
 }
 
 public interface IBitemporalManager
 {
-    public BitemporalResult<T, TBusinessKey> Update<T, TBusinessKey>(T entity, DateTimeOffset applicableFrom,
+    public BitemporalUpdateResult<T, TBusinessKey> Update<T, TBusinessKey>(T entity, DateTimeOffset applicableFrom,
         Action<T> updateAction)
         where T : ITemporalEntity<TBusinessKey>
         where TBusinessKey : IEquatable<TBusinessKey>;
 
-    public BitemporalResult<T, TBusinessKey> Delete<T, TBusinessKey>(T entity, DateTimeOffset applicableTo)
+    public BitemporalDeleteResult<T, TBusinessKey> Delete<T, TBusinessKey>(T entity, DateTimeOffset applicableTo)
         where T : ITemporalEntity<TBusinessKey>
         where TBusinessKey : IEquatable<TBusinessKey>;
 }
 
-public sealed record BitemporalResult<T, TBusinessKey>(T Original, T Updated, T? Expired)
+public sealed record BitemporalUpdateResult<T, TBusinessKey>(T Closed, T Expired, T Updated)
+    where T : ITemporalEntity<TBusinessKey>
+    where TBusinessKey : IEquatable<TBusinessKey>;
+    
+public sealed record BitemporalDeleteResult<T, TBusinessKey>(T Closed, T Expired)
     where T : ITemporalEntity<TBusinessKey>
     where TBusinessKey : IEquatable<TBusinessKey>;
