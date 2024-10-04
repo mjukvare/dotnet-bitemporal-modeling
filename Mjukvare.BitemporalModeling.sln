@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# 
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9AA5D5EE-B2B5-4DDC-90D1-17D34A62744B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mjukvare.BitemporalModeling.Domain", "src\Mjukvare.BitemporalModeling.Domain\Mjukvare.BitemporalModeling.Domain.csproj", "{D96DC6D7-2293-497A-897F-917F15301863}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{1AD41C69-AA5B-4FA8-9189-933A651AC2D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mjukvare.BitemporalModeling.Domain.Tests", "tests\Mjukvare.BitemporalModeling.Domain.Tests\Mjukvare.BitemporalModeling.Domain.Tests.csproj", "{0336C6F3-C8CA-44BC-BF28-833B27D581DA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D96DC6D7-2293-497A-897F-917F15301863}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D96DC6D7-2293-497A-897F-917F15301863}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D96DC6D7-2293-497A-897F-917F15301863}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D96DC6D7-2293-497A-897F-917F15301863}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0336C6F3-C8CA-44BC-BF28-833B27D581DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0336C6F3-C8CA-44BC-BF28-833B27D581DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0336C6F3-C8CA-44BC-BF28-833B27D581DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0336C6F3-C8CA-44BC-BF28-833B27D581DA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D96DC6D7-2293-497A-897F-917F15301863} = {9AA5D5EE-B2B5-4DDC-90D1-17D34A62744B}
+		{0336C6F3-C8CA-44BC-BF28-833B27D581DA} = {1AD41C69-AA5B-4FA8-9189-933A651AC2D8}
+	EndGlobalSection
+EndGlobal
