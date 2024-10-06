@@ -93,7 +93,7 @@ public sealed record BitemporalTime(
     };
 
     public bool IsClosed() => RecordedTo is not null;
-    public bool IsLatest => ApplicableTo is null && RecordedTo is null;
+    public bool IsLatestActive => ApplicableTo is null && RecordedTo is null;
 }
 
 public sealed class BitemporalManager(TimeProvider timeProvider) : IBitemporalManager
@@ -105,7 +105,7 @@ public sealed class BitemporalManager(TimeProvider timeProvider) : IBitemporalMa
     {
         BitemporalTime originalTime = entity.BitemporalTime;
         
-        if (!originalTime.IsLatest)
+        if (!originalTime.IsLatestActive)
         {
             // Updates are only performed on the currently latest record
         }
