@@ -1,6 +1,8 @@
-namespace Mjukvare.BitemporalModeling.Domain.Tests;
+using Mjukvare.BitemporalModeling.Domain.Tests.Shared;
 
-public class Experiments
+namespace Mjukvare.BitemporalModeling.Domain.Tests.Experiments.Universal;
+
+public class ExperimentsUniversal
 {
     [Fact]
     public void AttemptEntityUpdate()
@@ -14,7 +16,7 @@ public class Experiments
             BitemporalTime = BitemporalTime.Latest(now, now)
         };
 
-        var sut = new BitemporalManager(TimeProvider.System);
+        IBitemporalManager sut = new BitemporalManager(TimeProvider.System);
 
         BitemporalUpdateResult<User, Guid> updateResult = sut.Update<User, Guid>(user, now.AddDays(10), u => { u.Name = "James"; });
     }
@@ -31,7 +33,7 @@ public class Experiments
             BitemporalTime = BitemporalTime.Latest(now, now)
         };
 
-        var sut = new BitemporalManager(TimeProvider.System);
+        IBitemporalManager sut = new BitemporalManager(TimeProvider.System);
 
         BitemporalDeleteResult<User, Guid> result = sut.Delete<User, Guid>(user, now.AddDays(10));
     }
@@ -62,46 +64,12 @@ public sealed class User : ITemporalEntity<Guid>
     }
 }
 
-public interface ITemporalEntity<out TBusinessKey> : ICloneable where TBusinessKey : IEquatable<TBusinessKey>
-{
-    /// <summary>
-    /// Represents a key that is constant for a temporal entity. That means, this property, once defined, cannot be
-    /// altered in any way, shape, or form.
-    /// </summary>
-    public TBusinessKey BusinessKey { get; }
-
-    public BitemporalTime BitemporalTime { get; set; }
-}
-
-public sealed record BitemporalTime(
-    DateTimeOffset ApplicableFrom,
-    DateTimeOffset? ApplicableTo,
-    DateTimeOffset RecordedFrom,
-    DateTimeOffset? RecordedTo)
-{
-    public static BitemporalTime Latest(DateTimeOffset applicableFrom, DateTimeOffset recordedFrom)
-        => new(applicableFrom, null, recordedFrom, null);
-
-    public BitemporalTime Close(DateTimeOffset closeTime) => this with
-    {
-        RecordedTo = closeTime
-    };
-
-    public BitemporalTime Ends(DateTimeOffset applicableTo) => this with
-    {
-        ApplicableTo = applicableTo
-    };
-
-    public bool IsClosed() => RecordedTo is not null;
-    public bool IsLatestActive => ApplicableTo is null && RecordedTo is null;
-}
-
 public sealed class BitemporalManager(TimeProvider timeProvider) : IBitemporalManager
 {
-    public BitemporalUpdateResult<T, TBusinessKey> Update<T, TBusinessKey>(T entity, DateTimeOffset applicableFrom,
-        Action<T> updateAction)
-        where T : ITemporalEntity<TBusinessKey>
-        where TBusinessKey : IEquatable<TBusinessKey>
+    public BitemporalUpdateResult<T, TBusinessKey> Update<T, TBusinessKey>(
+        T entity, 
+        DateTimeOffset applicableFrom,
+        Action<T> updateAction) where T : ITemporalEntity<TBusinessKey> where TBusinessKey : IEquatable<TBusinessKey>
     {
         BitemporalTime originalTime = entity.BitemporalTime;
         
