@@ -1,6 +1,7 @@
 namespace Mjukvare.BitemporalModeling.Domain.Tests.Shared;
 
-public interface IBitemporalEntity<out TBusinessKey> where TBusinessKey : IEquatable<TBusinessKey>
+public interface IBitemporalEntity<out TBusinessKey> 
+    where TBusinessKey : IEquatable<TBusinessKey>
 {
     /// <summary>
     /// Represents a key that is constant for a bitemporal entity. That means, this property, once defined, cannot be
@@ -8,5 +9,5 @@ public interface IBitemporalEntity<out TBusinessKey> where TBusinessKey : IEquat
     /// </summary>
     public TBusinessKey BusinessKey { get; }
 
-    public BitemporalTime BitemporalTime { get; set; }
+    public BitemporalTime BitemporalTime { get; }
 }
